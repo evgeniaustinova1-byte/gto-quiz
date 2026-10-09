@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ГТО: Миссия на максимум!</title>
+<meta name="author" content="УЕБ">
+<meta name="description" content="Авторская интерактивная игра о ГТО для детей 6–8 лет.">
+<style>
+:root{
+  --blue:#1479d1; --sky:#dff5ff; --yellow:#ffd84d; --orange:#ff9f43;
+  --green:#55c878; --red:#ff6b6b; --purple:#8d68d8; --ink:#17324d;
+  --white:#fff; --shadow:0 12px 30px rgba(24,71,105,.16);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink);
+  background:linear-gradient(180deg,#bceeff 0%,#effcff 45%,#fff8df 100%);
+  min-height:100vh;
+}
+button{font:inherit;cursor:pointer;border:0}
+.game{max-width:1100px;margin:auto;padding:18px}
+.top{
+  position:relative;overflow:hidden;background:linear-gradient(135deg,#0877d5,#39bde8);
+  color:#fff;border-radius:28px;padding:22px 25px;box-shadow:var(--shadow);
+}
+.top:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;
+ background:rgba(255,255,255,.10);right:-50px;top:-80px}
+.brand{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.logo{
+  width:72px;height:72px;border-radius:50%;background:#fff;color:var(--blue);
+  display:grid;place-items:center;font-weight:900;font-size:22px;border:6px solid var(--yellow);
+  box-shadow:0 4px 0 rgba(0,0,0,.12);transform:rotate(-4deg)
+}
+h1{font-size:clamp(28px,5vw,48px);margin:0 0 4px;line-height:1}
+.subtitle{font-size:17px;opacity:.95}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;position:relative;z-index:1}
+.pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+ padding:9px 14px;border-radius:999px;font-weight:700}
+.progress{height:13px;background:rgba(255,255,255,.3);border-radius:99px;margin-top:16px;overflow:hidden}
+.progress>div{height:100%;width:0;background:var(--yellow);transition:.5s;border-radius:99px}
+.screen{display:none;margin-top:18px}
+.screen.active{display:block;animation:pop .35s ease}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:rgba(255,255,255,.94);border-radius:26px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+.hero{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:center}
+.hero-character{font-size:105px;text-align:center;filter:drop-shadow(0 8px 4px rgba(0,0,0,.12))}
+h2{font-size:clamp(24px,4vw,36px);margin:4px 0 10px}
+h3{font-size:23px;margin:5px 0 12px}
+.lead{font-size:19px;line-height:1.45}
+.btn{
+  background:var(--blue);color:#fff;padding:13px 20px;border-radius:15px;
+  font-weight:900;box-shadow:0 5px 0 #075ca5;transition:.15s;margin:5px
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #075ca5}
+.btn.yellow{background:var(--yellow);color:#4a3a00;box-shadow:0 5px 0 #d4a900}
+.btn.green{background:var(--green);box-shadow:0 5px 0 #309b51}
+.btn.gray{background:#e9f0f5;color:var(--ink);box-shadow:0 5px 0 #c4d1da}
+.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.choice{
+ background:#f6fbff;border:3px solid #dceef8;border-radius:18px;padding:16px;
+ font-weight:800;text-align:left;min-height:72px;transition:.15s
+}
+.choice:hover{border-color:var(--blue);transform:translateY(-2px)}
+.choice.correct{background:#dcf9e6;border-color:var(--green)}
+.choice.wrong{background:#ffe2e2;border-color:var(--red)}
+.feedback{min-height:35px;font-weight:800;font-size:18px;margin-top:12px}
+.fact{background:linear-gradient(135deg,#fff7c7,#fff);border-left:8px solid var(--yellow)}
+.station{display:flex;align-items:center;gap:15px}
+.station-icon{font-size:55px}
+.input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input{
+  width:150px;padding:13px;border:3px solid #d9e8f1;border-radius:14px;font-size:20px;font-weight:800;
+}
+.badge-wrap{text-align:center;padding:12px}
+.medal{
+  width:190px;height:190px;margin:15px auto;border-radius:50%;
+  display:grid;place-items:center;font-size:74px;border:12px double #fff;
+  box-shadow:0 12px 30px rgba(0,0,0,.18)
+}
+.bronze{background:linear-gradient(145deg,#d99861,#9d5731)}
+.silver{background:linear-gradient(145deg,#f1f5f7,#aebbc3)}
+.gold{background:linear-gradient(145deg,#fff08b,#f3b400)}
+.result-score{font-size:52px;font-weight:900;color:var(--blue)}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rule{padding:16px;border-radius:18px;background:#f5fbff;text-align:center}
+.rule b{display:block;font-size:30px}
+.small{font-size:13px;opacity:.75}
+.author{
+ text-align:center;padding:13px;font-weight:900;color:#31566f;
+ letter-spacing:2px
+}
+.hidden-code{display:none}
+@media(max-width:700px){
+ .hero{grid-template-columns:1fr}.hero-character{font-size:80px}
+ .choice-grid,.rules{grid-template-columns:1fr}
+ .game{padding:10px}.card{padding:17px}
+}
+</style>
+</head>
+<body>
+<div class="game">
+  <header class="top">
+    <div class="brand">
+      <div class="logo" aria-label="Авторская работа УЕБ">УЕБ</div>
+      <div>
+        <h1>ГТО: Миссия на максимум!</h1>
+        <div class="subtitle">Весёлая спортивная игра для ребят 6–8 лет</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="pill">⭐ Баллы: <span id="score">0</span></div>
+      <div class="pill">🏅 Станция: <span id="station">0</span>/6</div>
+      <div class="pill">🎯 Рекорд: <span id="record">0</span></div>
+    </div>
+    <div class="progress"><div id="progress"></div></div>
+  </header>
+
+  <section class="screen active" id="s0">
+    <div class="card hero">
+      <div class="hero-character">🦊</div>
+      <div>
+        <h2>Привет, чемпион!</h2>
+        <p class="lead">Лисёнок Фит хочет проверить, знаешь ли ты секреты ГТО. Пройди станции, отвечай на вопросы, выполняй маленькие задания и собирай баллы!</p>
+        <button class="btn yellow" onclick="startGame()">🚀 Начать приключение</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🏆 Как играть?</h3>
+      <div class="rules">
+        <div class="rule"><b>1️⃣</b>Отвечай и выполняй задания</div>
+        <div class="rule"><b>2️⃣</b>За успех получай баллы</div>
+        <div class="rule"><b>3️⃣</b>В финале узнай свой значок</div>
+      </div>
+      <p class="small">Игра носит познавательный характер. Результат игры не является официальным определением ступени или знака ГТО.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="s1">
+    <div class="card">
+      <div class="station"><div class="station-icon">🐰</div><div><h2>Станция 1. Разминка</h2><p class="lead">Зайка Здоровейка спрашивает: зачем спортсмену разминка?</p></div></div>
+      <div class="choice-grid">
+        <button class="choice" onclick="answer(this,false)">Чтобы стать сонным</button>
+        <button class="choice" onclick="answer(this,true)">Чтобы подготовить тело к движению</button>
+        <button class="choice" onclick="answer(this,false)">Чтобы меньше двигаться</button>
+        <button class="choice" onclick="answer(this,false)">Чтобы спрятать кроссовки</button>
+      </div>
+      <div class="feedback" id="f1"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="s2">
+    <div class="card">
+      <div class="station"><div class="station-icon">🐻</div><div><h2>Станция 2. Знаешь ГТО?</h2><p class="lead">Мишка Силач предлагает выбрать правильный ответ.</p></div></div>
+      <p class="lead"><b>Что означает буква «Т» в названии ГТО?</b></p>
+      <div class="choice-grid">
+        <button class="choice" onclick="answer(this,false)">Танцы</button>
+        <button class="choice" onclick="answer(this,true)">Труду</button>
+        <button class="choice" onclick="answer(this,false)">Тропинке</button>
+        <button class="choice" onclick="answer(this,false)">Турниру</button>
+      </div>
+      <div class="feedback" id="f2"></div>
+    </div>
+    <div class="card fact">
+      💡 <b>Интересный факт:</b> ГТО — это физкультурно-спортивный комплекс «Готов к труду и обороне». У движения большая история: комплекс появился в СССР в 1931 году.
+    </div>
+  </section>
+
+  <section class="screen" id="s3">
+    <div class="card">
+      <div class="station"><div class="station-icon">🦊</div><div><h2>Станция 3. Спортивный выбор</h2><p class="lead">Лисёнок Фит потерял спортивный инвентарь. Что поможет тренировать прыжок?</p></div></div>
+      <div class="choice-grid">
+        <button class="choice" onclick="answer(this,false)">🧸 Плюшевый мишка</button>
+        <button class="choice" onclick="answer(this,true)">🪢 Скакалка</button>
+        <button class="choice" onclick="answer(this,false)">🍽️ Тарелка</button>
+        <button class="choice" onclick="answer(this,false)">🛏️ Подушка</button>
+      </div>
+      <div class="feedback" id="f3"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="s4">
+    <div class="card">
+      <div class="station"><div class="station-icon">🐿️</div><div><h2>Станция 4. Быстрый мозг</h2><p class="lead">Белочка Спортсменка просит назвать качество, которое помогает бегуну.</p></div></div>
+      <div class="choice-grid">
+        <button class="choice" onclick="answer(this,true)">🏃 Быстрота</button>
+        <button class="choice" onclick="answer(this,false)">😴 Сонливость</button>
+        <button class="choice" onclick="answer(this,false)">🛋️ Лень</button>
+        <button class="choice" onclick="answer(this,false)">🐌 Медлительность</button>
+      </div>
+      <div class="feedback" id="f4"></div>
+    </div>
+    <div class="card fact">
+      💡 <b>Спортивный секрет:</b> физическая культура помогает развивать силу, быстроту, ловкость, выносливость и гибкость. А ещё занятия могут подарить хорошее настроение!
+    </div>
+  </section>
+
+  <section class="screen" id="s5">
+    <div class="card">
+      <div class="station"><div class="station-icon">🐯</div><div><h2>Станция 5. Прыжок чемпиона</h2><p class="lead">Тигрёнок предлагает ввести свой <b>условный</b> результат прыжка в сантиметрах. Здесь нет проигравших — главное стараться!</p></div></div>
+      <div class="input-row">
+        <input id="jump" type="number" min="1" max="500" placeholder="см">
+        <button class="btn green" onclick="jumpAnswer()">🦘 Засчитать прыжок</button>
+      </div>
+      <div class="feedback" id="f5"></div>
+      <p class="small">Не вводи настоящий спортивный норматив: это игровое задание для подсчёта баллов.</p>
+    </div>
+  </section>
+
+  <section class="screen" id="s6">
+    <div class="card">
+      <div class="station"><div class="station-icon">🌟</div><div><h2>Станция 6. Финальный факт</h2><p class="lead">Последний вопрос! Что важнее всего на спортивной площадке?</p></div></div>
+      <div class="choice-grid">
+        <button class="choice" onclick="answer(this,true)">❤️ Стараться, соблюдать правила и поддерживать друзей</button>
+        <button class="choice" onclick="answer(this,false)">😡 Никому не помогать</button>
+        <button class="choice" onclick="answer(this,false)">🚫 Нарушать правила</button>
+        <button class="choice" onclick="answer(this,false)">😴 Отказываться от движения</button>
+      </div>
+      <div class="feedback" id="f6"></div>
+    </div>
+  </section>
+
+  <section class="screen" id="final">
+    <div class="card badge-wrap">
+      <div style="font-size:72px">🎉</div>
+      <h2>Миссия выполнена!</h2>
+      <div class="result-score"><span id="finalScore">0</span> баллов</div>
+      <div id="medal" class="medal gold">🏅</div>
+      <h2 id="medalTitle">Золотой знак!</h2>
+      <p id="finalText" class="lead"></p>
+      <button class="btn yellow" onclick="restart()">🔄 Играть ещё раз</button>
+      <button class="btn gray" onclick="showFacts()">💡 Открыть факты ГТО</button>
+    </div>
+    <div class="card" id="facts" style="display:none">
+      <h3>📚 Копилка фактов</h3>
+      <p>🏅 ГТО расшифровывается как «Готов к труду и обороне».</p>
+      <p>📅 Комплекс ГТО был создан в СССР в 1931 году.</p>
+      <p>🏃 В комплексе используются разные виды физических испытаний и нормативов.</p>
+      <p>👧👦 Для детей существуют возрастные ступени комплекса.</p>
+      <p>💪 Регулярная двигательная активность помогает укреплять здоровье и развивать физические качества.</p>
+      <p class="small">Факты в игре приведены в познавательных целях; официальные нормативы и условия выполнения испытаний следует уточнять по актуальным материалам движения ГТО.</p>
+    </div>
+  </section>
+
+  <div class="author">
+    ✦ АВТОРСКАЯ РАБОТА · УЕБ · «ГТО: МИССИЯ НА МАКСИМУМ!» ✦
+  </div>
+  <div class="hidden-code" id="authorCode">UEB-Авторская-работа</div>
+</div>
+
+<script>
+const screens=['s0','s1','s2','s3','s4','s5','s6','final'];
+let score=0, current=0, answered=false;
+let record=Number(localStorage.getItem('gto_ueb_record')||0);
+document.getElementById('record').textContent=record;
+
+const feedbacks={
+  1:['f1','Отлично! Разминка помогает подготовить мышцы и суставы к движению.'],
+  2:['f2','Правильно! «Т» — это «труду».'],
+  3:['f3','Верно! Скакалка — отличный помощник для двигательных упражнений.'],
+  4:['f4','Супер! Быстрота действительно важна для бега.'],
+  6:['f6','Чемпион — тот, кто старается и поддерживает команду!']
+};
+
+function show(n){
+  if(n<0 || n>=screens.length) return;
+  screens.forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(screens[n]).classList.add('active');
+  current=n;
+  document.getElementById('station').textContent=Math.min(Math.max(n,0),6);
+  document.getElementById('progress').style.width=(n===0?0:(n>=7?100:(n/6)*100))+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===7) finishFinal();
+}
+
+function startGame(){
+  score=0; answered=false;
+  document.getElementById('score').textContent='0';
+  show(1);
+}
+
+function answer(btn,correct){
+  if(answered) return;
+  answered=true;
+  btn.classList.add(correct?'correct':'wrong');
+  const f=feedbacks[current];
+  const el=document.getElementById(f[0]);
+  if(correct){
+    score+=20;
+    el.textContent='✅ '+f[1];
+  } else {
+    el.textContent='🙂 Почти! Запомни правильный ответ и попробуй ещё раз в следующем раунде.';
+  }
+  document.getElementById('score').textContent=score;
+  setTimeout(()=>{
+    answered=false;
+    show(current+1);
+  },900);
+}
+
+function jumpAnswer(){
+  if(answered)return;
+  const v=Number(document.getElementById('jump').value);
+  const f=document.getElementById('f5');
+  if(!v || v<1){f.textContent='Введите число в сантиметрах 🙂';return;}
+  answered=true;
+  score+=Math.min(30,10+Math.floor(v/30));
+  f.textContent='🦘 Прыжок принят! Главное — двигаться и стараться!';
+  document.getElementById('score').textContent=score;
+  setTimeout(()=>{answered=false;show(6)},1000);
+}
+
+function finishFinal(){
+  document.getElementById('finalScore').textContent=score;
+  const medal=document.getElementById('medal');
+  const title=document.getElementById('medalTitle');
+  const text=document.getElementById('finalText');
+  medal.className='medal';
+  if(score>=85){
+    medal.classList.add('gold'); medal.textContent='🥇';
+    title.textContent='ЗОЛОТОЙ ЗНАК';
+    text.textContent='Ух ты! Ты настоящий знаток ГТО: внимательный, смелый и спортивный!';
+  } else if(score>=55){
+    medal.classList.add('silver'); medal.textContent='🥈';
+    title.textContent='СЕРЕБРЯНЫЙ ЗНАК';
+    text.textContent='Отличная работа! Ты много знаешь о спорте и готов к новым победам.';
+  } else {
+    medal.classList.add('bronze'); medal.textContent='🥉';
+    title.textContent='БРОНЗОВЫЙ ЗНАК';
+    text.textContent='Ты сделал первый шаг! Повторяй, тренируйся и обязательно станешь ещё сильнее.';
+  }
+  if(score>record){
+    record=score;
+    localStorage.setItem('gto_ueb_record',record);
+  }
+  document.getElementById('record').textContent=record;
+}
+
+function restart(){location.reload();}
+function showFacts(){document.getElementById('facts').style.display='block';}
+</script>
+</body>
+</html>
